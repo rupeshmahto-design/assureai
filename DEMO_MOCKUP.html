@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Assurance AI - Visual Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .demo-header {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 30px -30px;
+        }
+        
+        .demo-header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .demo-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .multiselect {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .multiselect label {
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .multiselect input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .file-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value.green { color: #10b981; }
+        .metric-value.red { color: #ef4444; }
+        .metric-value.orange { color: #f59e0b; }
+        .metric-value.yellow { color: #eab308; }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .heatmap-row {
+            display: grid;
+            grid-template-columns: 3fr 2fr 1fr;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .heatmap-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        
+        .progress-fill.green { background: #10b981; }
+        .progress-fill.yellow { background: #eab308; }
+        .progress-fill.red { background: #ef4444; }
+        
+        .score-badge {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .finding-card {
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .finding-card.critical { border-left-color: #ef4444; background: #fef2f2; }
+        .finding-card.high { border-left-color: #f59e0b; background: #fffbeb; }
+        .finding-card.medium { border-left-color: #eab308; background: #fefce8; }
+        .finding-card.low { border-left-color: #10b981; background: #f0fdf4; }
+        
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .finding-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .severity-badge {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .severity-critical { background: #ef4444; color: white; }
+        .severity-high { background: #f59e0b; color: white; }
+        .severity-medium { background: #eab308; color: white; }
+        .severity-low { background: #10b981; color: white; }
+        
+        .finding-category {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .finding-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .evidence-section {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .evidence-item {
+            padding: 10px;
+            background: #f0f9ff;
+            border-left: 3px solid #3b82f6;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .evidence-doc {
+            font-weight: 600;
+            color: #3b82f6;
+            font-size: 14px;
+        }
+        
+        .evidence-text {
+            color: #555;
+            font-size: 14px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .questions-section {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .stakeholder-questions {
+            margin-bottom: 15px;
+        }
+        
+        .stakeholder-role {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .question-list {
+            list-style-position: inside;
+            color: #555;
+        }
+        
+        .question-list li {
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        
+        .export-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .export-btn {
+            padding: 15px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .info-box {
+            background: #e0f2fe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .screen-label {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- SCREEN 1: PROJECT SETUP -->
+        <div class="demo-section">
+            <div class="screen-label">📝 Screen 1: New Assessment Setup</div>
+            
+            <div class="sidebar">
+                <h3>🎯 Project Assurance AI</h3>
+                <label style="display: block; margin-bottom: 5px; color: #555;">Claude API Key</label>
+                <input type="password" class="api-key-input" value="sk-ant-api03-xxxxxxxxxxxx" disabled>
+                <span class="status-badge status-success">✅ API Key Set</span>
+                
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                
+                <div style="color: #555;">
+                    <div style="margin-bottom: 10px;"><strong>Navigation</strong></div>
+                    <div style="padding: 8px; background: white; border-radius: 4px; margin-bottom: 5px;">🏠 Home</div>
+                    <div style="padding: 8px; background: #667eea; color: white; border-radius: 4px; margin-bottom: 5px;">📝 New Assessment</div>
+                    <div style="padding: 8px; background: white; border-radius: 4px; margin-bottom: 5px;">📊 View Projects</div>
+                    <div style="padding: 8px; background: white; border-radius: 4px;">ℹ️ About</div>
+                </div>
+            </div>
+            
+            <h1 style="color: #333; margin-bottom: 30px;">📝 New Project Assurance Assessment</h1>
+            
+            <!-- Step 1: Project Information -->
+            <div class="card">
+                <h3>Step 1: Project Information</h3>
+                <div class="form-row">
+                    <div>
+                        <div class="form-group">
+                            <label>Project Name*</label>
+                            <input type="text" class="form-control" value="Australian Retirement Trust - GRC Technology Architecture" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Number</label>
+                            <input type="text" class="form-control" value="PRJ-2025-875K" disabled>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Focus Areas*</label>
+                            <div class="multiselect">
+                                <label><input type="checkbox" checked disabled> Budget & Cost Management</label>
+                                <label><input type="checkbox" checked disabled> Schedule & Milestones</label>
+                                <label><input type="checkbox" checked disabled> Requirements & Scope</label>
+                                <label><input type="checkbox" disabled> Governance & Reporting</label>
+                                <label><input type="checkbox" checked disabled> Risk & Issue Management</label>
+                                <label><input type="checkbox" disabled> Resource Allocation</label>
+                                <label><input type="checkbox" disabled> Solution Architecture Alignment</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Stage*</label>
+                            <select class="form-control" disabled>
+                                <option>Planning</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Document Upload -->
+            <div class="card">
+                <h3>Step 2: Upload Project Documents</h3>
+                <div class="info-box">
+                    💡 Upload: Project Charter, Status Reports, Budgets, Requirements Docs, Risk Registers, Gantt Charts, etc.
+                </div>
+                
+                <div class="file-upload">
+                    <div class="file-upload-icon">📄</div>
+                    <div style="font-size: 16px; color: #667eea; font-weight: 600;">Drag and drop files here</div>
+                    <div style="color: #999; margin-top: 5px; font-size: 14px;">Supported: PDF, DOCX, XLSX, TXT</div>
+                </div>
+                
+                <div class="file-list">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #10b981;">📄 6 file(s) uploaded</div>
+                    <div class="file-item">- <strong>Project_Charter_ART_GRC_v1.2.pdf</strong> (245.3 KB)</div>
+                    <div class="file-item">- <strong>Budget_Breakdown_2025_Q1.xlsx</strong> (89.7 KB)</div>
+                    <div class="file-item">- <strong>Status_Report_Week12_2025.docx</strong> (156.2 KB)</div>
+                    <div class="file-item">- <strong>Requirements_Traceability_Matrix.xlsx</strong> (203.8 KB)</div>
+                    <div class="file-item">- <strong>Risk_Register_Updated.xlsx</strong> (67.4 KB)</div>
+                    <div class="file-item">- <strong>Project_Plan_Gantt_v2.xlsx</strong> (128.9 KB)</div>
+                </div>
+            </div>
+            
+            <!-- Generate Button -->
+            <button class="btn btn-primary">🚀 Generate Assurance Assessment</button>
+        </div>
+        
+        <!-- SCREEN 2: PROCESSING -->
+        <div class="demo-section">
+            <div class="screen-label">⏳ Screen 2: Processing Documents</div>
+            
+            <h1 style="color: #333; margin-bottom: 30px;">Processing Your Assessment...</h1>
+            
+            <div class="card">
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: 600;">📄 Processing Project_Charter_ART_GRC_v1.2.pdf...</span>
+                        <span style="color: #10b981; font-weight: 600;">Completed</span>
+                    </div>
+                    <div style="height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                        <div style="width: 100%; height: 100%; background: #10b981;"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: 600;">📄 Processing Budget_Breakdown_2025_Q1.xlsx...</span>
+                        <span style="color: #667eea; font-weight: 600;">Extracting data...</span>
+                    </div>
+                    <div style="height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                        <div style="width: 65%; height: 100%; background: #667eea;"></div>
+                    </div>
+                </div>
+                
+                <div style="padding: 15px; background: #f0f9ff; border-radius: 6px; margin-top: 20px;">
+                    <div style="color: #3b82f6; font-weight: 600; margin-bottom: 10px;">✨ AI Analysis in Progress</div>
+                    <ul style="color: #555; line-height: 1.8;">
+                        <li>✅ Classified 6 documents</li>
+                        <li>✅ Extracted budget data: $875,000 total cost</li>
+                        <li>✅ Identified 23 milestones</li>
+                        <li>⏳ Running cross-document correlation...</li>
+                        <li>⏳ Generating stakeholder questions...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SCREEN 3: DASHBOARD -->
+        <div class="demo-section">
+            <div class="screen-label">📊 Screen 3: Assessment Dashboard</div>
+            
+            <div class="demo-header">
+                <h1>📊 Australian Retirement Trust - GRC Technology Architecture</h1>
+                <p>Project Number: PRJ-2025-875K | Stage: Planning | Generated: 2025-01-30 15:42</p>
+            </div>
+            
+            <!-- Metrics -->
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-value green">67 <span style="font-size: 20px;">🟡</span></div>
+                    <div class="metric-label">Health Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value red">3</div>
+                    <div class="metric-label">Critical</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value orange">8</div>
+                    <div class="metric-label">High</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value yellow">12</div>
+                    <div class="metric-label">Medium</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label">Documents</div>
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+            
+            <!-- Heatmap -->
+            <h2 style="margin-bottom: 20px; color: #333;">🎯 Risk Assessment by Category</h2>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Budget Alignment</div>
+                <div class="progress-bar">
+                    <div class="progress-fill green" style="width: 82%;"></div>
+                </div>
+                <div class="score-badge" style="color: #10b981;">🟢 82%</div>
+            </div>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Schedule Integrity</div>
+                <div class="progress-bar">
+                    <div class="progress-fill yellow" style="width: 71%;"></div>
+                </div>
+                <div class="score-badge" style="color: #eab308;">🟡 71%</div>
+            </div>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Requirements Traceability</div>
+                <div class="progress-bar">
+                    <div class="progress-fill red" style="width: 43%;"></div>
+                </div>
+                <div class="score-badge" style="color: #ef4444;">🔴 43%</div>
+            </div>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Governance Compliance</div>
+                <div class="progress-bar">
+                    <div class="progress-fill yellow" style="width: 58%;"></div>
+                </div>
+                <div class="score-badge" style="color: #eab308;">🟡 58%</div>
+            </div>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Risk Management</div>
+                <div class="progress-bar">
+                    <div class="progress-fill green" style="width: 87%;"></div>
+                </div>
+                <div class="score-badge" style="color: #10b981;">🟢 87%</div>
+            </div>
+            
+            <div class="heatmap-row">
+                <div class="heatmap-label">Solution Architecture</div>
+                <div class="progress-bar">
+                    <div class="progress-fill yellow" style="width: 52%;"></div>
+                </div>
+                <div class="score-badge" style="color: #eab308;">🟡 52%</div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+            
+            <!-- Findings -->
+            <h2 style="margin-bottom: 20px; color: #333;">🔍 Priority Findings & Actions</h2>
+            
+            <div class="tabs">
+                <button class="tab active">🔴 Critical (3)</button>
+                <button class="tab">🟠 High (8)</button>
+                <button class="tab">🟡 Medium (12)</button>
+                <button class="tab">🟢 Low (5)</button>
+            </div>
+            
+            <!-- Critical Finding 1 -->
+            <div class="finding-card critical">
+                <div class="finding-header">
+                    <div class="finding-title">#1: Requirements-Budget Mismatch</div>
+                    <div class="severity-badge severity-critical">CRITICAL</div>
+                </div>
+                
+                <div class="finding-category">Category: Budget Alignment</div>
+                
+                <div class="finding-description">
+                    Analysis identified 23 functional requirements in the Requirements Traceability Matrix (totaling approximately $4.2M in estimated scope) that have no corresponding budget allocation in the approved Budget Breakdown. This represents a significant gap between planned scope and financial resources, putting project delivery at serious risk.
+                </div>
+                
+                <div class="evidence-section">
+                    <strong style="display: block; margin-bottom: 10px;">📄 Evidence:</strong>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Requirements_Traceability_Matrix.xlsx</div>
+                        <div class="evidence-text">"Phase 2 requirements (REQ-201 through REQ-223) marked as 'In Scope' with priority P0/P1, estimated effort 8,400 hours"</div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Budget_Breakdown_2025_Q1.xlsx</div>
+                        <div class="evidence-text">"Phase 2 allocation: $0 - marked as 'Pending Approval' with note 'Contingent on Q2 funding'"</div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Project_Charter_ART_GRC_v1.2.pdf</div>
+                        <div class="evidence-text">"Total approved budget: $875,000 for Phase 1 only. Phase 2 scope requires separate business case."</div>
+                    </div>
+                </div>
+                
+                <div class="questions-section">
+                    <strong style="display: block; margin-bottom: 15px;">❓ Questions to Ask Stakeholders:</strong>
+                    
+                    <div class="stakeholder-questions">
+                        <div class="stakeholder-role">PMO (Project Management Office):</div>
+                        <ul class="question-list">
+                            <li>When is Phase 2 budget approval expected? What is the timeline for securing funding?</li>
+                            <li>Should Phase 2 requirements be de-scoped from the current project plan until funding is confirmed?</li>
+                            <li>What is the impact on timeline if Phase 2 is delayed or cancelled?</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stakeholder-questions">
+                        <div class="stakeholder-role">CFO (Chief Financial Officer):</div>
+                        <ul class="question-list">
+                            <li>What is the total estimated cost for Phase 2 requirements ($4.2M estimated)?</li>
+                            <li>Is there budget availability in Q2 or should this be part of FY2026 planning?</li>
+                            <li>What is the business case approval process and timeline?</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stakeholder-questions">
+                        <div class="stakeholder-role">Steering Committee:</div>
+                        <ul class="question-list">
+                            <li>Can we deliver business value with Phase 1 only, or is Phase 2 mandatory for regulatory compliance?</li>
+                            <li>What are the risks of continuing with unfunded scope in the plan?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Critical Finding 2 -->
+            <div class="finding-card critical">
+                <div class="finding-header">
+                    <div class="finding-title">#2: Milestone Date Conflict Across Documents</div>
+                    <div class="severity-badge severity-critical">CRITICAL</div>
+                </div>
+                
+                <div class="finding-category">Category: Schedule Integrity</div>
+                
+                <div class="finding-description">
+                    The go-live date for GRC system implementation shows critical inconsistencies across project documents. Project Charter states June 30, 2025, while the detailed Project Plan (Gantt) indicates August 15, 2025. The most recent Status Report continues to reference the June 30 date, creating confusion about actual commitments and creating risk of missed expectations.
+                </div>
+                
+                <div class="evidence-section">
+                    <strong style="display: block; margin-bottom: 10px;">📄 Evidence:</strong>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Project_Charter_ART_GRC_v1.2.pdf</div>
+                        <div class="evidence-text">"Milestone: GRC System Go-Live - June 30, 2025 (Executive commitment to APRA)"</div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Project_Plan_Gantt_v2.xlsx</div>
+                        <div class="evidence-text">"Task 47: Production Cutover - Finish Date: 15-Aug-2025 (updated 22-Jan-2025)"</div>
+                    </div>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Status_Report_Week12_2025.docx</div>
+                        <div class="evidence-text">"Project remains on track for June 30, 2025 go-live per charter commitments"</div>
+                    </div>
+                </div>
+                
+                <div class="questions-section">
+                    <strong style="display: block; margin-bottom: 15px;">❓ Questions to Ask Stakeholders:</strong>
+                    
+                    <div class="stakeholder-questions">
+                        <div class="stakeholder-role">PMO:</div>
+                        <ul class="question-list">
+                            <li>Which date is the current commitment - June 30 or August 15?</li>
+                            <li>Has formal change control been followed to update the baseline schedule?</li>
+                            <li>What caused the 6-week slip in the detailed plan?</li>
+                            <li>Does the critical path analysis support either date given current progress?</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stakeholder-questions">
+                        <div class="stakeholder-role">Steering Committee:</div>
+                        <ul class="question-list">
+                            <li>Was the steering committee informed of the schedule change in the Gantt?</li>
+                            <li>What is the regulatory impact if we cannot meet the June 30 APRA commitment?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- High Finding -->
+            <div class="finding-card high">
+                <div class="finding-header">
+                    <div class="finding-title">#3: Budget Variance Exceeds Threshold</div>
+                    <div class="severity-badge severity-high">HIGH</div>
+                </div>
+                
+                <div class="finding-category">Category: Budget Alignment</div>
+                
+                <div class="finding-description">
+                    Current budget tracking shows 14.2% variance from baseline, exceeding the 10% threshold defined in the Project Charter for escalation. Primary drivers are higher-than-expected vendor costs for GRC platform licensing and integration services.
+                </div>
+                
+                <div class="evidence-section">
+                    <strong style="display: block; margin-bottom: 10px;">📄 Evidence:</strong>
+                    <div class="evidence-item">
+                        <div class="evidence-doc">Budget_Breakdown_2025_Q1.xlsx</div>
+                        <div class="evidence-text">"Actual spend to date: $124,200. Baseline forecast for same period: $108,750. Variance: +$15,450 (+14.2%)"</div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+            
+            <!-- Export Options -->
+            <h2 style="margin-bottom: 20px; color: #333;">📥 Export Options</h2>
+            
+            <div class="export-row">
+                <button class="export-btn">📄 Generate PDF Report</button>
+                <button class="export-btn">📊 Generate Excel Report</button>
+                <button class="export-btn">📝 Generate Markdown</button>
+            </div>
+        </div>
+        
+        <!-- SCREEN 4: SAMPLE PDF REPORT PREVIEW -->
+        <div class="demo-section">
+            <div class="screen-label">📄 Screen 4: Sample PDF Report (Preview)</div>
+            
+            <div style="border: 2px solid #e0e0e0; padding: 40px; background: white; border-radius: 8px;">
+                <div style="text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 20px; margin-bottom: 30px;">
+                    <h1 style="color: #667eea; margin-bottom: 10px;">PROJECT ASSURANCE REPORT</h1>
+                    <h2 style="color: #333;">Australian Retirement Trust - GRC Technology Architecture</h2>
+                    <p style="color: #666;">Project Number: PRJ-2025-875K | Stage: Planning</p>
+                    <p style="color: #666;">Generated: January 30, 2025 at 15:42</p>
+                </div>
+                
+                <h2 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">Executive Summary</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #eab308;">67/100</div>
+                        <div style="color: #666; font-size: 14px;">Health Score</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #fef2f2; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #ef4444;">3</div>
+                        <div style="color: #666; font-size: 14px;">Critical Issues</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #fffbeb; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #f59e0b;">8</div>
+                        <div style="color: #666; font-size: 14px;">High Issues</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #fefce8; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #eab308;">12</div>
+                        <div style="color: #666; font-size: 14px;">Medium Issues</div>
+                    </div>
+                </div>
+                
+                <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
+                    <h3 style="color: #ef4444; margin-bottom: 15px;">⚠️ Immediate Action Required</h3>
+                    <p style="color: #555; line-height: 1.6;">
+                        This project assessment has identified <strong>3 critical issues</strong> that require immediate executive attention. The most significant concerns are: (1) $4.2M of in-scope requirements lacking budget allocation, (2) conflicting go-live dates across documents creating delivery risk, and (3) budget variance exceeding governance thresholds. Recommend emergency steering committee meeting to address funding and timeline alignment.
+                    </p>
+                </div>
+                
+                <h2 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">Critical Findings</h2>
+                
+                <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: #333;">1. Requirements-Budget Mismatch</h3>
+                        <span style="background: #ef4444; color: white; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">CRITICAL</span>
+                    </div>
+                    <p style="color: #666; line-height: 1.6; margin-bottom: 15px;">
+                        23 functional requirements (estimated $4.2M scope) have no corresponding budget allocation. Phase 2 requirements marked as "In Scope" but funding marked as "Pending Approval."
+                    </p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                        <strong style="color: #667eea;">Recommendation:</strong>
+                        <p style="color: #555; margin-top: 8px;">Convene emergency budget review. Either secure Phase 2 funding by end of Q1 2025 or formally descope Phase 2 requirements and revise project charter. Current state creates false expectations and delivery risk.</p>
+                    </div>
+                </div>
+                
+                <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: #333;">2. Milestone Date Conflict</h3>
+                        <span style="background: #ef4444; color: white; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">CRITICAL</span>
+                    </div>
+                    <p style="color: #666; line-height: 1.6; margin-bottom: 15px;">
+                        Go-live date shows as June 30, 2025 in Charter and Status Report, but August 15, 2025 in detailed Project Plan. Represents 6-week discrepancy in executive vs. operational commitments.
+                    </p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                        <strong style="color: #667eea;">Recommendation:</strong>
+                        <p style="color: #555; margin-top: 8px;">Establish single source of truth for go-live date. If August 15 is realistic, update Charter through formal change control and communicate to APRA. If June 30 is mandatory, rebaseline detailed plan with corrective actions.</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center; color: #999; font-size: 12px;">
+                    Page 1 of 8 | Project Assurance AI | Powered by Claude 3.5 Sonnet
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; margin-top: 30px;">
+            <h2 style="color: #667eea; margin-bottom: 15px;">🎯 End of Visual Demo</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+                This mockup demonstrates the complete user journey from project setup through assessment generation to final dashboard and report output. 
+                <br><br>
+                <strong>What do you think? Any suggestions for improvements?</strong>
+            </p>
+        </div>
+        
+    </div>
+</body>
+</html>

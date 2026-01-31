@@ -1,0 +1,8 @@
+
+{
+  "name": "AssurePro: AI Project Assurance & Benefits Realisation",
+  "description": "A sophisticated enterprise platform that uses AI to perform deep project assurance, gap analysis, and benefits mapping against industry frameworks like PRINCE2 and TOGAF.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
