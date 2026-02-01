@@ -5,7 +5,12 @@ import { FOCUS_AREAS, PROJECT_STAGES } from './constants';
 import FileUpload from './components/FileUpload';
 import ReportDashboard from './components/ReportDashboard';
 import ProfessionalReport from './components/ProfessionalReport';
+import Sidebar from './components/Sidebar';
+import ReportHistory from './components/ReportHistory';
 import { analyzeProjectAssurance } from './services/geminiService';
+import { apiService } from './services/apiService';
+import { generateRiskControlMatrix } from './services/excelService';
+import { apiService } from './services/apiService';
 // @ts-ignore - html2pdf doesn't have local types but works via importmap
 import html2pdf from 'html2pdf.js';
 
@@ -58,6 +63,8 @@ const App: React.FC = () => {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'dashboard' | 'professional'>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
 
   const loadSampleData = () => {
     setProjectData({
@@ -95,11 +102,44 @@ const App: React.FC = () => {
     try {
       const result = await analyzeProjectAssurance(projectData);
       setReport(result);
+      
+      // Save report to localStorage
+      saveReportToHistory(result);
     } catch (err: any) {
       setError(err.message || "Auditor encountered a processing error.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveReportToHistory = async (newReport: AssuranceReport) => {
+    try {
+      await apiService.createReport({
+        projectName: projectData.name,
+        projectNumber: projectData.number,
+        projectStage: projectData.stage,
+        report: newReport,
+        documents: projectData.documents.map(d => ({ name: d.name, size: d.size, type: d.type })),
+        viewMode: viewMode
+      });
+      console.log('Report saved to database');
+    } catch (error) {
+      console.error('Failed to save report:', error);
+      alert('Failed to save report to database. Please try again.');
+    }
+  };
+
+  const handleViewHistoricalReport = (savedReport: any) => {
+    setProjectData({
+      name: savedReport.projectName,
+      number: savedReport.projectNumber,
+      focusAreas: projectData.focusAreas, // Keep current focus areas
+      stage: savedReport.projectStage,
+      documents: savedReport.documents
+    });
+    setReport(savedReport.report);
+    setViewMode(savedReport.viewMode);
+    setActiveTab('new');
   };
 
   const handleExportPDF = async () => {
@@ -177,6 +217,14 @@ const App: React.FC = () => {
                 <i className="fa-solid fa-vial"></i>
                 Load Sample Project
              </button>
+             <button 
+              onClick={() => setSidebarOpen(true)}
+              className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2"
+              title="Settings"
+             >
+                <i className="fa-solid fa-gear"></i>
+                Settings
+             </button>
              <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Auditor Core 3.1 Online</span>
@@ -185,8 +233,53 @@ const App: React.FC = () => {
         </div>
       </header>
 
+      {/* Navigation Tabs */}
+      {!report && (
+        <div className="bg-white border-b border-slate-200 sticky top-[88px] z-40 no-print">
+          <div className="max-w-6xl mx-auto px-10">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab('new')}
+                className={`px-6 py-4 text-sm font-black uppercase tracking-wider transition-all relative ${
+                  activeTab === 'new'
+                    ? 'text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <i className="fa-solid fa-plus-circle"></i>
+                  New Assessment
+                </span>
+                {activeTab === 'new' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600"></div>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`px-6 py-4 text-sm font-black uppercase tracking-wider transition-all relative ${
+                  activeTab === 'history'
+                    ? 'text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <i className="fa-solid fa-clock-rotate-left"></i>
+                  Report History
+                </span>
+                {activeTab === 'history' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600"></div>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 max-w-6xl mx-auto w-full px-10 py-12">
         {!report ? (
+          activeTab === 'history' ? (
+            <ReportHistory onViewReport={handleViewHistoricalReport} />
+          ) : (
           <div className="max-w-4xl mx-auto space-y-10">
             <div className="text-center space-y-4">
                <h2 className="text-5xl font-black text-slate-900 tracking-tight">Project Assurance Audit</h2>
@@ -335,6 +428,7 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
+          )
         ) : (
           <div className="space-y-12 animate-in fade-in zoom-in duration-700">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-slate-100 pb-12 no-print">
@@ -402,6 +496,14 @@ const App: React.FC = () => {
                 <i className="fa-solid fa-file-lines mr-2"></i>
                 Professional Report
               </button>
+              <button
+                onClick={() => generateRiskControlMatrix(report, projectData.name, projectData.number)}
+                className="px-4 py-2 rounded font-bold text-sm bg-green-600 text-white hover:bg-green-700 transition-all shadow-sm ml-auto"
+                title="Export Risk & Control Matrix to Excel"
+              >
+                <i className="fa-solid fa-file-excel mr-2"></i>
+                Export Risk Matrix
+              </button>
             </div>
             
             {viewMode === 'dashboard' ? (
@@ -459,6 +561,9 @@ const App: React.FC = () => {
            </div>
         </div>
       </footer>
+
+      {/* Sidebar */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
     </div>
   );
 };

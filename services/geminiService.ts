@@ -2,12 +2,23 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { ProjectData, AssuranceReport } from "../types";
 
-const anthropic = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+function getAnthropicClient() {
+  // Try to get API key from localStorage first, then fall back to env variable
+  const apiKey = localStorage.getItem('anthropic_api_key') || import.meta.env.VITE_ANTHROPIC_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('Anthropic API key not found. Please add your API key in Settings.');
+  }
+
+  return new Anthropic({
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 export async function analyzeProjectAssurance(projectData: ProjectData): Promise<AssuranceReport> {
+  
+  const anthropic = getAnthropicClient();
   
   // Aggregate all document content into a structured context for the auditor
   const docContext = projectData.documents.map(doc => 

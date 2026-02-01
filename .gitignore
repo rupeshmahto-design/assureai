@@ -19,6 +19,10 @@ dist-ssr
 .env.test.local
 .env.production.local
 
+# Backend environment
+backend/.env
+backend/node_modules
+
 # Service accounts and credentials
 service-account.json
 test-anthropic.js
