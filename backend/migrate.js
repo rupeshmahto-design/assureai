@@ -60,6 +60,19 @@ async function runMigration() {
       `);
       
       console.log('✓ Tables dropped successfully\n');
+    } else {
+      // Check if old reports table exists (from backward compatibility)
+      const oldReportsCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_name = 'reports'
+        )
+      `);
+      
+      if (oldReportsCheck.rows[0].exists) {
+        console.log('📦 Found old reports table. Dropping for upgrade...');
+        await pool.query('DROP TABLE IF EXISTS reports CASCADE');
+      }
     }
     
     console.log('📖 Reading schema file...');
