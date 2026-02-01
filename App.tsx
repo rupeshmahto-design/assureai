@@ -10,7 +10,6 @@ import ReportHistory from './components/ReportHistory';
 import { analyzeProjectAssurance } from './services/geminiService';
 import { apiService } from './services/apiService';
 import { generateRiskControlMatrix } from './services/excelService';
-import { apiService } from './services/apiService';
 // @ts-ignore - html2pdf doesn't have local types but works via importmap
 import html2pdf from 'html2pdf.js';
 
@@ -119,7 +118,7 @@ const App: React.FC = () => {
         projectNumber: projectData.number,
         projectStage: projectData.stage,
         report: newReport,
-        documents: projectData.documents.map(d => ({ name: d.name, size: d.size, type: d.type })),
+        documents: projectData.documents.map(d => ({ name: d.name, size: parseInt(d.size) || 0, type: d.type })),
         viewMode: viewMode
       });
       console.log('Report saved to database');

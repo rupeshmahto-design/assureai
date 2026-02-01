@@ -96,7 +96,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onViewReport }) => {
             projectName: savedReport.projectName,
             projectNumber: savedReport.projectNumber,
             projectStage: savedReport.projectStage,
-            documents: savedReport.documents
+            documents: savedReport.documents.map(d => ({ name: d.name, category: 'Uploaded' }))
           })
         );
         
@@ -110,10 +110,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onViewReport }) => {
         const root = ReactDOM.createRoot(container.querySelector(`#${elementId}`)!);
         root.render(
           React.createElement(ReportDashboard, {
-            report: savedReport.report,
-            projectName: savedReport.projectName,
-            projectNumber: savedReport.projectNumber,
-            projectStage: savedReport.projectStage
+            report: savedReport.report
           })
         );
         
@@ -124,7 +121,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onViewReport }) => {
       
       const opt = {
         margin: 0,
-        filename: `${savedReport.projectNumber}_${savedReport.projectName}_${new Date(savedReport.timestamp).toISOString().split('T')[0]}.pdf`,
+        filename: `${savedReport.projectNumber}_${savedReport.projectName}_${new Date(savedReport.created_at).toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }

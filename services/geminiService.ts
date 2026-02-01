@@ -1,4 +1,5 @@
 
+/// <reference types="vite/client" />
 import Anthropic from "@anthropic-ai/sdk";
 import { ProjectData, AssuranceReport } from "../types";
 
