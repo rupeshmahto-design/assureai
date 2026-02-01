@@ -8,7 +8,7 @@ function getAnthropicClient() {
   const apiKey = localStorage.getItem('anthropic_api_key') || import.meta.env.VITE_ANTHROPIC_API_KEY;
   
   if (!apiKey) {
-    throw new Error('Anthropic API key not found. Please add your API key in Settings.');
+    throw new Error('AssureAI API key not found. Please add your API key in Settings.');
   }
 
   return new Anthropic({

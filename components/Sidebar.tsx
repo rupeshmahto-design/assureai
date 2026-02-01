@@ -131,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       <ul className="list-disc list-inside space-y-1 text-blue-700">
                         <li>Stored locally in your browser</li>
                         <li>Never sent to our servers</li>
-                        <li>Get your key from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">Anthropic Console</a></li>
+                        <li>Get your key from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">AI Console</a></li>
                       </ul>
                     </div>
                   </div>
@@ -147,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   How to Use
                 </h3>
                 <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
-                  <li>Enter your Anthropic API key above</li>
+                  <li>Enter your AssureAI API key above</li>
                   <li>Click "Save Key" to store it locally</li>
                   <li>Upload project documents to analyze</li>
                   <li>View comprehensive assurance reports</li>
