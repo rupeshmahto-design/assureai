@@ -66,13 +66,13 @@ CREATE TABLE reports (
   shared_with INTEGER[], -- Array of user IDs
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  deleted_at TIMESTAMP, -- Soft delete
-  
-  INDEX idx_org_id (organization_id),
-  INDEX idx_created_by (created_by),
-  INDEX idx_project_number (project_number),
-  INDEX idx_created_at (created_at DESC)
+  deleted_at TIMESTAMP -- Soft delete
 );
+
+CREATE INDEX idx_reports_org_id ON reports(organization_id);
+CREATE INDEX idx_reports_created_by ON reports(created_by);
+CREATE INDEX idx_reports_project_number ON reports(project_number);
+CREATE INDEX idx_reports_created_at ON reports(created_at DESC);
 
 -- Audit Log
 CREATE TABLE audit_log (
@@ -85,11 +85,11 @@ CREATE TABLE audit_log (
   details JSONB,
   ip_address VARCHAR(45),
   user_agent TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  
-  INDEX idx_org_audit (organization_id, created_at DESC),
-  INDEX idx_user_audit (user_id, created_at DESC)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE INDEX idx_audit_org ON audit_log(organization_id, created_at DESC);
+CREATE INDEX idx_audit_user ON audit_log(user_id, created_at DESC);
 
 -- Invitations
 CREATE TABLE invitations (
