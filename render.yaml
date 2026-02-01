@@ -16,6 +16,13 @@ services:
           property: connectionString
       - key: PORT
         value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: assureproai-frontend
+          envVarKey: RENDER_EXTERNAL_URL
     healthCheckPath: /health
 
   # Frontend Static Site

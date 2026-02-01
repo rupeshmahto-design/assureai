@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import pkg from 'pg';
 const { Pool } = pkg;
+
+// Import routes
+import authRoutes from './routes/auth.js';
+import usersRoutes from './routes/users.js';
 
 dotenv.config();
 
@@ -16,15 +21,32 @@ const pool = new Pool({
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
+
+// Attach database to request
+app.use((req, res, next) => {
+  req.db = pool;
+  next();
+});
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Get all reports
+// Authentication routes
+app.use('/auth', authRoutes);
+app.use('/api/users', usersRoutes);
+
+// Note: Report routes will be updated to require authentication and organization scoping
+// For now, keeping them public for backward compatibility during migration
+
+// Get all reports (will be scoped to organization after migration)
 app.get('/api/reports', async (req, res) => {
   try {
     const result = await pool.query(
@@ -97,22 +119,39 @@ app.delete('/api/reports/:id', async (req, res) => {
   }
 });
 
-// Initialize database table if not exists
+// Initialize database - basic reports table for backward compatibility
+// Full schema should be applied using schema.sql migration
 const initDb = async () => {
   try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS reports (
-        id SERIAL PRIMARY KEY,
-        project_name VARCHAR(255) NOT NULL,
-        project_number VARCHAR(100),
-        project_stage VARCHAR(100),
-        report JSONB NOT NULL,
-        documents JSONB,
-        view_mode VARCHAR(50),
-        created_at TIMESTAMP DEFAULT NOW()
+    // Check if full schema is applied
+    const schemaCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_name = 'organizations'
       )
     `);
-    console.log('Database table initialized');
+    
+    if (!schemaCheck.rows[0].exists) {
+      console.log('⚠️  Full schema not detected. Please run migration: psql $DATABASE_URL -f backend/schema.sql');
+      console.log('Creating basic reports table for backward compatibility...');
+      
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS reports (
+          id SERIAL PRIMARY KEY,
+          project_name VARCHAR(255) NOT NULL,
+          project_number VARCHAR(100),
+          project_stage VARCHAR(100),
+          report JSONB NOT NULL,
+          documents JSONB,
+          view_mode VARCHAR(50),
+          created_at TIMESTAMP DEFAULT NOW()
+        )
+      `);
+    } else {
+      console.log('✓ Full multi-tenant schema detected');
+    }
+    
+    console.log('Database initialized');
   } catch (error) {
     console.error('Error initializing database:', error);
   }

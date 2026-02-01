@@ -7,6 +7,10 @@ import ReportDashboard from './components/ReportDashboard';
 import ProfessionalReport from './components/ProfessionalReport';
 import Sidebar from './components/Sidebar';
 import ReportHistory from './components/ReportHistory';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
+import { AdminDashboard } from './components/AdminDashboard';
+import { useAuth } from './context/AuthContext';
 import { analyzeProjectAssurance } from './services/geminiService';
 import { apiService } from './services/apiService';
 import { generateRiskControlMatrix } from './services/excelService';
@@ -50,6 +54,10 @@ const SAMPLE_DOCS: ProjectDocument[] = [
 ];
 
 const App: React.FC = () => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+  const [showAdmin, setShowAdmin] = useState(false);
+  
   const [projectData, setProjectData] = useState<ProjectData>({
     name: '',
     number: '',
@@ -64,6 +72,27 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<'dashboard' | 'professional'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show login/register if not authenticated
+  if (!isAuthenticated) {
+    return authView === 'login' 
+      ? <Login onSwitchToRegister={() => setAuthView('register')} />
+      : <Register onSwitchToLogin={() => setAuthView('login')} />;
+  }
+
+  // Show admin dashboard if user clicked admin button
+  if (showAdmin) {
+    return <AdminDashboard />;
+  }
 
   const loadSampleData = () => {
     setProjectData({
@@ -208,7 +237,16 @@ const App: React.FC = () => {
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Deterministic Governance Engine</p>
              </div>
           </div>
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-3">
+             {(user?.isOrgAdmin || user?.isSuperAdmin) && (
+               <button 
+                onClick={() => setShowAdmin(true)}
+                className="px-4 py-2 bg-purple-50 border border-purple-100 rounded-xl text-[10px] font-black text-purple-600 uppercase tracking-widest hover:bg-purple-100 transition-all flex items-center gap-2"
+               >
+                  <i className="fa-solid fa-user-shield"></i>
+                  Admin
+               </button>
+             )}
              <button 
               onClick={loadSampleData}
               className="px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-2"
